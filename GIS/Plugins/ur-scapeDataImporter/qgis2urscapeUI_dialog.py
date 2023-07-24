@@ -9,7 +9,7 @@
         begin                : 2020-06-05
         update              : 2023-07-21
         git sha              : $Format:%H$
-        copyright            : (C) 2023 Singapore ETH Centre, Future Cities Laboratory
+        copyright            : (C) 2023 Future Cities Laboratory, Singapore-ETH Centre
                                All rights reserved.
         author:              : Muhammad Salihin Bin Zaol-kefli
         maintainer:          : Joshua Vargas

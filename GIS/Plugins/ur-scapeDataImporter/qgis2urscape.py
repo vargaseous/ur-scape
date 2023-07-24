@@ -549,7 +549,7 @@ class LayerWriter:
             return path
         else:
             return None
-            print("We cannot find the layers.csv file. Please check if it is correctly configured in the Data layer. Reach out at ur-scape studio if you need help.")
+            print("We cannot find the layers.csv file. Please check if it is correctly configured in the Data layer.")
     
     def getColorRGB(self):
         # prepare full HSV color
@@ -580,7 +580,8 @@ class LayerWriter:
             if any(name == s for s in layer):
                 if (layer[2].isdigit()):
                     if not (int(layer[2]) == colorRGB[0] and int(layer[3]) == colorRGB[1] and int(layer[4]) == colorRGB[2]):
-                        print("A layer with the same name but different colours already exists in the file: Layers.csv. The colour you have chosen will be ignored.")
+                        print("A layer with the same name but different colours already exists in the file: Layers.csv.")
+                        print("The colour you have chosen will be ignored. You can change the colour for all data layers with this name in the ur-scape application using the Manage Data panel.")
 
 class FileWriter:
     "Create Csv File"
