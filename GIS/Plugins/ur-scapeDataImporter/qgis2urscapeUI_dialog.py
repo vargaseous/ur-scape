@@ -168,6 +168,7 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
         self.btnOpenAttributeTable.setAutoDefault(False)
         self.btnBrowse.setAutoDefault(False)
         self.btnCancel.setAutoDefault(False)
+        self.btnRefresh_WordCloud.setAutoDefault(False)
         
         # Init variables
         self.initVars()
@@ -192,6 +193,10 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
     def initInputLayer(self):
         self.selectedInputLayer = None
         self.layerIDs = []
+        
+    def initInputLayer_WordCloud(self):
+        self.selectedInputLayer_WordCloud = None
+        self.layerIDs_WordCloud = []
 
     def initShapefileField(self):
         self.selectedShapefileField = None
@@ -199,6 +204,7 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
 
     def initQGISInput(self):
         self.initInputLayer()
+        self.initInputLayer_WordCloud()
         self.initShapefileField()
 
     def initOutputType(self):
@@ -212,8 +218,10 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
     def initOutputPath(self):
         s = QgsSettings()
         storedOutputPath = s.value("outputPath")
+        storedOutputPath_WordCloud = s.value("outputPathWordCloud")
         #print(storedOutputPath)
         self.txtOutputPath.setText(uiDirectory if not storedOutputPath else storedOutputPath)
+        self.txtOutputPath_WordCloud.setText(uiDirectory if not storedOutputPath_WordCloud else storedOutputPath_WordCloud)
 
     def initLocation(self):
         self.isPrevWorld = self.isWorld = False
@@ -391,6 +399,7 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
 
         self.updateInputLayersUI()
         self.cmbInputLayer.wheelEvent = lambda event: None
+        self.cmbInputLayer_WordCloud.wheelEvent = lambda event: None
         
         self.onShapefileFieldChanged(0)
         self.cmbShapefileField.wheelEvent = lambda event: None
@@ -415,10 +424,14 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
 
     def initSignals(self):
         self.btnRefresh.clicked.connect(self.onRefresh)
+        self.btnRefresh_WordCloud.clicked.connect(self.onRefresh)
         self.cmbShapefileField.currentIndexChanged.connect(self.onShapefileFieldChanged)
         self.btnOpenAttributeTable.clicked.connect(self.onOpenAttributeTable)
         self.cmbOutputType.currentIndexChanged.connect(self.onOutputTypeChanged)
         self.btnBrowse.clicked.connect(self.onBrowseFile)
+        self.btnBrowse_WordCloud.clicked.connect(self.onBrowseFile_WordCloud)
+        self.btnDestinationPath_Merge.clicked.connect(self.onBrowseFile)
+        self.btnSourcePath_Merge.clicked.connect(self.onBrowseFile)
         self.txtLocation.textChanged.connect(self.onLocationChanged)
         self.cmbRes.currentIndexChanged.connect(self.onResolutionChanged)
         self.cmbUnits.currentIndexChanged.connect(self.onUnitsChanged)
@@ -442,6 +455,9 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
         try: self.cmbInputLayer.currentIndexChanged.disconnect(self.onLayerChanged)
         except Exception: pass
         
+        try: self.cmbInputLayer_WordCloud.currentIndexChanged.disconnect(self.onLayerChanged)
+        except Exception: pass
+        
         # Clear cmbInputLayer and repopulate again with updated list of layers
         # in QGIS project
         self.cmbInputLayer.clear()
@@ -451,8 +467,18 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
                 self.layerIDs.append(key)
                 self.cmbInputLayer.addItem(value.name())
                 
+        self.cmbInputLayer_WordCloud.clear()
+        self.layerIDs_WordCloud = []
+        self.layerIDs_WordCloud = []
+        for key, value in QgsProject.instance().mapLayers().items():
+            if not value.isTemporary():
+                self.layerIDs.append(key)
+                self.cmbInputLayer_WordCloud.addItem(value.name())
+                
         # Still no available layers in QGIS after Refresh
         if not self.layerIDs:
+            return
+        if not self.layerIDs_WordCloud:
             return
 
         # Use previous selectedInputLayer if still available
@@ -468,12 +494,29 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
                     self.updateShapefileField(isinstance(iface.activeLayer(), QgsVectorLayer))
         else:
             index = 0
+            
+        if self.selectedInputLayer_WordCloud is not None:
+            if self.selectedInputLayer_WordCloud in QgsProject.instance().mapLayers().values():
+                index = self.cmbInputLayer_WordCloud.findText(self.selectedInputLayer_WordCloud.name(), QtCore.Qt.MatchFixedString)
+            else:
+                activeLayer = iface.activeLayer()
+                if activeLayer is not None:
+                    index = self.cmbInputLayer_WordCloud.findText(activeLayer.name(), QtCore.Qt.MatchFixedString)
+                    self.updateShapefileField(isinstance(iface.activeLayer(), QgsVectorLayer))
+        else:
+            index = 0
 
         if index >= 0:
-            self.cmbInputLayer.setCurrentIndex(index)
-            self.updateSelectedInputLayer(index)
-            iface.setActiveLayer(self.selectedInputLayer)
-        self.cmbInputLayer.currentIndexChanged.connect(self.onLayerChanged)
+            self.cmbInputLayer_WordCloud.setCurrentIndex(index)
+            self.updateSelectedInputLayer_WordCloud(index)
+            iface.setActiveLayer(self.updateSelectedInputLayer_WordCloud)
+        self.cmbInputLayer_WordCloud.currentIndexChanged.connect(self.onLayerChanged)
+        
+        if index >= 0:
+            self.cmbInputLayer_WordCloud.setCurrentIndex(index)
+            self.updateSelectedInputLayer_WordCloud(index)
+            iface.setActiveLayer(self.updateSelectedInputLayer_WordCloud)
+        self.cmbInputLayer_WordCloud.currentIndexChanged.connect(self.onLayerChanged)
         
     def onLayerChanged(self, index):
         self.updateSelectedInputLayer(index)
@@ -481,6 +524,8 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
         self.updateShapefileField(isinstance(iface.activeLayer(), QgsVectorLayer))
         self.updateOutputType(isinstance(iface.activeLayer(), QgsVectorLayer))
         self.onOutputTypeChanged(0)
+        self.updateSelectedInputLayer_WordCloud(index)
+        iface.setActiveLayer(self.selectedInputLayer_WordCloud)
 
     def onShapefileFieldChanged(self, index):
         self.cmbShapefileField.setCurrentIndex(index)
@@ -515,6 +560,10 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
     def onBrowseFile(self):
         self.txtOutputPath.setText(QFileDialog.getExistingDirectory())
         self.setOutputPath(self.txtOutputPath.text())
+
+    def onBrowseFile_WordCloud(self):
+        self.txtOutputPath_WordCloud.setText(QFileDialog.getExistingDirectory())
+        self.setOutputPathWordCloud(self.txtOutputPath_WordCloud.text())
 
     def onLocationChanged(self, text):
         self.updateCmbRes()
@@ -636,39 +685,68 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
     def onRun(self):
         # Reset any warning messages
         self.clearMsgBar();
-
-        self.setNetworkMap()    # Required before checking for empty fields
-        result = self.checkMandatoryFields()
         
-        # Prompt error pop-up if there is error, otherwise run exporter
-        if result[0]:
-            self.warningMsgBar(result[1])
-        else:
-            # Set vars needed
-            self.setOutputPath(self.txtOutputPath.text())
-            if self.selectedUnits == "Custom":
-                self.setCustomUnits()
-            self.setGroup()
-            self.setUseBand()
-            self.setNoDataValue()
+        if self.tabWidget.currentIndex() == 1:
+            
 
+            self.setOutputPathWordCloud(self.txtOutputPath_WordCloud.text())
+            
+            # Instantiation
+            layer = iface.activeLayer()
+            wordCloudInstance = q2u.WordCloud
+            
             self.btnCancel.setEnabled(True)
             self.btnRun.setEnabled(False)
-            
+                
             self.logger.clear()
             self.logger.attach()
             
-            # Pass vars values from UI to imported module,
-            # Run Exporter in the background
-            #print("Running new export instance...")
-            self.setq2uParams()
-            self.q2uExportTask = QgsTask.fromFunction("q2u Export", q2u.Exporter, on_finished=self.completeQ2UExport)
+            # Pass vars values from UI to imported module
+            self.setq2UParams_WordCloud()
+            self.q2uExportTask = QgsTask.fromFunction("Create Word Cloud CSV",
+                                         lambda task: wordCloudInstance.taskWordCloudFormat(task),
+                                         on_finished=self.completeQ2UExport)
+            
             self.q2uExportTask.progressChanged.connect(self.onTaskProgressChanged)
             QgsApplication.taskManager().addTask(self.q2uExportTask)
 
-            self.tabWidget.setCurrentIndex(1)   # Change to Log tab
-            
+            self.tabWidget.setCurrentIndex(3)   # Change to Log tab
+                
             self.saveCurrSettings()
+            
+        if self.tabWidget.currentIndex() == 0:
+            self.setNetworkMap()    # Required before checking for empty fields
+            result = self.checkMandatoryFields()
+            
+            # Prompt error pop-up if there is error, otherwise run exporter
+            if result[0]:
+                self.warningMsgBar(result[1])
+            else:
+                # Set vars needed
+                self.setOutputPath(self.txtOutputPath.text())
+                if self.selectedUnits == "Custom":
+                    self.setCustomUnits()
+                self.setGroup()
+                self.setUseBand()
+                self.setNoDataValue()
+
+                self.btnCancel.setEnabled(True)
+                self.btnRun.setEnabled(False)
+                
+                self.logger.clear()
+                self.logger.attach()
+                
+                # Pass vars values from UI to imported module,
+                # Run Exporter in the background
+                #print("Running new export instance...")
+                self.setq2uParams()
+                self.q2uExportTask = QgsTask.fromFunction("q2u Export", q2u.Exporter, on_finished=self.completeQ2UExport)
+                self.q2uExportTask.progressChanged.connect(self.onTaskProgressChanged)
+                QgsApplication.taskManager().addTask(self.q2uExportTask)
+
+                self.tabWidget.setCurrentIndex(3)   # Change to Log tab
+                
+                self.saveCurrSettings()
 
     def onClose(self):
         self.prepareForClose()
@@ -691,10 +769,14 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
     # Save settings for:
         # Input Layer
         self.qgsSettings.setValue("inputLayer", self.cmbInputLayer.currentIndex())
+        # Input Layer Word Cloud
+        self.qgsSettings.setValue("inputLayerWordCloud", self.cmbInputLayer_WordCloud.currentIndex())
         # Field
         self.qgsSettings.setValue("field", self.cmbShapefileField.currentIndex())
         # Output Path
         self.qgsSettings.setValue("outputPath", self.txtOutputPath.text())
+        # Output Path Word Cloud
+        self.qgsSettings.setValue("outputPathWordCloud", self.txtOutputPath_WordCloud.text())
         # Layer Name
         self.qgsSettings.setValue("layerName", self.txtLayerName.text())
         # Location
@@ -751,6 +833,8 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
     # Load settings for:
         # Input Layer
         self.loadPrevCmbIndex(self.cmbInputLayer, self.qgsSettings.value("inputLayer"), self.cmbInputLayer.currentIndex())
+        # Input Layer Word Cloud
+        self.loadPrevCmbIndex(self.cmbInputLayer_WordCloud, self.qgsSettings.value("inputLayerWordCloud"), self.cmbInputLayer_WordCloud.currentIndex())
         # Field
         self.loadPrevCmbIndex(self.cmbShapefileField, self.qgsSettings.value("field"), self.cmbShapefileField.currentIndex())
         # Output Path
@@ -815,7 +899,13 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
         if layers and self.layerIDs:
             if 0 <= layerIndex < len(self.layerIDs):
                 self.selectedInputLayer = layers[self.layerIDs[layerIndex]]
-    
+                
+    def updateSelectedInputLayer_WordCloud(self, layerIndex):
+        layers = QgsProject.instance().mapLayers()
+        if layers and self.layerIDs_WordCloud:
+            if 0 <= layerIndex < len(self.layerIDs_WordCloud):
+                self.selectedInputLayer_WordCloud = layers[self.layerIDs_WordCloud[layerIndex]]
+                    
     def updateInputLayersUI(self):
         try: self.cmbInputLayer.currentIndexChanged.disconnect(self.onLayerChanged)
         except Exception: pass
@@ -832,6 +922,23 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
                 self.cmbInputLayer.setCurrentIndex(index)
                 self.onLayerChanged(index)
         self.cmbInputLayer.currentIndexChanged.connect(self.onLayerChanged)
+        
+    def updateInputLayersUI_WordCloud(self):
+        try: self.cmbInputLayer_WordCloud.currentIndexChanged.disconnect(self.onLayerChanged)
+        except Exception: pass
+        
+        self.layerIDs_WordCloud = []
+        for key, value in QgsProject.instance().mapLayers().items():
+            if not value.isTemporary():
+                self.layerIDs.append(key)
+                self.cmbInputLayer_WordCloud.addItem(value.name())
+        activeLayer = iface.activeLayer()
+        if activeLayer is not None:
+            index = self.cmbInputLayer_WordCloud.findText(activeLayer.name(), QtCore.Qt.MatchFixedString)
+            if index >= 0:
+                self.cmbInputLayer_WordCloud.setCurrentIndex(index)
+                self.onLayerChanged(index)
+        self.cmbInputLayer_WordCloud.currentIndexChanged.connect(self.onLayerChanged)
         
     def updateShapefileField(self, enabled):
         self.cmbShapefileField.clear()
@@ -1024,6 +1131,11 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
         s.setValue("outputPath", path)
         #print(s.value("outputPath"))
         
+    def setOutputPathWordCloud(self, path):
+        s = QgsSettings()
+        s.setValue("outputPathWordCloud", path)
+        #print(s.value("outputPathWordCloud"))
+        
     def setCustomUnits(self):
         self.selectedUnits = self.txtCustomUnits.text()
         # print("SelectedUnits: " + str(self.selectedUnits))
@@ -1099,6 +1211,7 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
         print("ClipToNoData: " + str(q2u.clipToNoData))
         print("NetworkMap: " + str(q2u.networkMap))
         
+        # Parameters
     def setq2uParams(self):
         # Mandatory Parameters
         q2u.outputPath = self.txtOutputPath.text()
@@ -1108,6 +1221,7 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
         q2u.units = self.selectedUnits
         q2u.location = self.txtLocation.text()
         q2u.date = self.date
+        
         
         # Optional Parameters
         q2u.group = self.txtLayerGroup.text()
@@ -1158,6 +1272,10 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
         q2u.networkMap = self.networkMap
         
         # self.printq2uParams()
+    
+    def setq2UParams_WordCloud(self):
+        # Parameters for Word Cloud
+        q2u.outputPathWordCloud = self.txtOutputPath_WordCloud.text()
 
     def checkMandatoryFields(self):
         if self.selectedInputLayer is None:
@@ -1173,6 +1291,11 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
             return True, "Output folder doesn't exist. Please provide a valid output location"
             
         return False, ""
+    
+        outputPathWordCloud = self.txtOutputPath_WordCloud.text().replace('\\', '/')
+        self.txtOutputPath_WordCloud.setText(outputPathWordCloud)
+        if not os.path.exists(outputPathWordCloud):
+            return True, "Output folder doesn't exist. Please provide a valid output location"
 
     def areAnyDateFieldsInvalid(self):
         yyyy = self.txtYYYY.text()
@@ -1243,6 +1366,7 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
     def areAnyTxtFieldsEmpty(self):
         if self.selectedOutputType == 0:    # Data Layer
             if not self.txtOutputPath.text(): return True, "Please provide an Output Path"
+            if not self.txtOutputPath_WordCloud.text(): return True, "Please provide an Output Path"
             if not self.txtLayerName.text(): return True, "Please provide a Layer Name"
             if not self.txtLocation.text(): return True, "Please provide a Location"
             result = self.isUnitDeselected()
@@ -1256,11 +1380,13 @@ class Qgis2UrscapeUIDialog(QtWidgets.QDialog):
             if not self.txtMaxPatchSize.text(): return True, "Please provide a value for Max Patch Size"
         elif self.selectedOutputType == 1:    # Reachability
             if not self.txtOutputPath.text(): return True, "Please provide an Output Path"
+            if not self.txtOutputPath_WordCloud.text(): return True, "Please provide an Output Path"
             if not self.txtLocation.text(): return True, "Please provide a Location"
             result = self.isAnyNetworkMapEmpty()
             if result[0]: return True, result[1]
         elif self.selectedOutputType == 2:    # Municipal Budget
             if not self.txtOutputPath.text(): return True, "Please provide an Output Path"
+            if not self.txtOutputPath_WordCloud.text(): return True, "Please provide an Output Path"
             if not self.txtLocation.text(): return True, "Please provide a Location"
             result = self.anyCustomTxtFieldsEmpty()
             if result[0]: return True, result[1]

@@ -2,6 +2,7 @@
 Please set basic parameters
 ---------------------------------------------------------------------"""
 outputPath = "Insert Data Path" # Do not use any backslash (e.g. C:/Documents/ur-scape/Data)
+outputPathWordCloud = "Insert Data Path" # Do not use any backslash (e.g. C:/Documents/ur-scape/Data)
 name = "Insert Layer Name" # Set layer name in Camel case (e.g. Population Density)
 field = "Insert Field Name" # Name of the field to be used from shapefile. Will be ignored if raster.
 resolution = "1" # 0-Neighbourhood, 1-City, 2-Metropolitan, 3-National, 4-Continental, 5-Global
@@ -1663,6 +1664,8 @@ class CheckLayer:
         return newRasterPath
         
 class geoCalculator:
+    "This class performs basic geographic calculations. It is used to calculate the area of a raster cell in square kilometers."
+    
     EarthRadiusKm = 6378.137 # Radius of earth in kilometers
     Rad2Km = EarthRadiusKm 
     Deg2Rad = math.pi / 180.0
@@ -1711,4 +1714,175 @@ class geoCalculator:
 if not isPlugin :
     Exporter()
 
-# This version is from 23.07.2020 - not for public
+class WordCloud:
+    "This class allows for the import of point data for the Word Cloud function."
+    #def __init__(self, pathname, output_pathname):
+    #    self.pathname = pathname
+    #    self.output_pathname = output_pathname
+    
+    def taskwordcloudQGIS(task, layer=iface.activeLayer(), output_pathname=outputPathWordCloud):
+        input_pathname = layer.source()
+        
+        def wordcloudformat(pathname, output_pathname):
+            """
+            This function requires a pathname to an existing point dataset.
+            It will create a new CSV file in the Word Cloud format.
+            
+            Parameters:
+            pathname (str): The path to the point dataset
+            output_pathname (str): The path to the output CSV file
+            
+            Returns:
+            None
+            """
+            
+            import pandas as pd
+            import geopandas as gpd
+            
+            # Getting the layer
+            try:
+                input = gpd.read_file(pathname)
+            except:
+                print("The input layer could not be read. If your layer is a scratch layer, please save it permanently as a valid vector file.")
+                return
+            
+            # Confirm that the layer has point geometry
+            if input.geometry.geom_type[0] != 'Point':
+                print("The input layer must have point geometry.")
+            else:
+                input.to_crs(epsg=4326, inplace=True)
+                input.dropna(subset=['geometry'], inplace=True)
+                
+                # Creating the new Word Cloud format dataframe
+                output = pd.DataFrame()
+                output['Latitude'] = input['geometry'].y
+                output['Longitude'] = input['geometry'].x
+                
+                # Adding string colujmns
+                for column in input.columns:
+                    if input[column].dtype == 'object':
+                        output[column] = input[column]
+                        
+                # Name index
+                output.index.name = '*index'
+                
+                # Saving the output as CSV
+                output.to_csv(output_pathname)
+                
+        wordcloudformat(input_pathname, output_pathname)
+    
+class DataMerge:
+    "This class merges the Data folders of two ur-scape installations."
+    
+    def merge_urscape_data(SourceData, DestinationData):
+        """ 
+        This function will merge the Data folders in two installations of ur-scape.
+        It will copy the files from the SourceData to the DestinationData and merge the layers.csv files.
+        
+        Parameters:
+        SourceData (str): The path to the source ur-scape Data folder
+        DestinationData (str): The path to the destination ur-scape Data folder
+        
+        Returns:
+        None
+        """
+        
+        ## Importing libraries ##
+        import os
+        import shutil
+        
+        ## Defining internal variables ##
+        destinationCSV = os.path.join(DestinationData, 'layers.csv')
+        
+        ## Defining functions ##
+        
+        class Group:
+            def __init__(self, name):
+                self.name = name
+                self.layers = []
+
+        class Layer:
+            def __init__(self, name, red, green, blue):
+                self.name = name
+                self.red = red
+                self.green = green
+                self.blue = blue
+
+        def read_nested_csv(filename):
+            groups = []
+            current_group = None
+
+            with open(filename, 'r', encoding='utf=16le') as file:
+                for line in file:
+                    line = line.strip()
+                    if line:
+                        parts = line.split(',')
+                        if parts[0] == 'Group':
+                            current_group = Group(parts[1])
+                            groups.append(current_group)
+                        elif parts[0] == 'Layer':
+                            if current_group:
+                                current_group.layers.append(Layer(parts[1], int(parts[2]), int(parts[3]), int(parts[4])))
+
+            return groups
+
+        def write_nested_csv(filename, groups):
+            with open(filename,
+                        'w', encoding='utf-16le') as file:
+                    for group in groups:
+                        file.write(f'Group,{group.name}\n')
+                        for layer in group.layers:
+                            file.write(f'Layer,{layer.name},{layer.red},{layer.green},{layer.blue}\n')
+                    
+        def merge_layerscsv(destinationCSV, sourceCSV):
+            original = read_nested_csv(destinationCSV)
+            addendum = read_nested_csv(sourceCSV)
+            
+            for add_group in addendum:
+                # Check if group exists in original dataset
+                original_group = next((orig_group for orig_group in original if orig_group.name == add_group.name), None)
+                
+                if original_group is None:
+                    # If group doesn't exist, add it to original dataset
+                    original.append(add_group)
+                else:
+                    # Group exists, check and add new layers
+                    for add_layer in add_group.layers:
+                        # Check if layer with the same name exists in original group
+                        if not any(orig_layer.name == add_layer.name for orig_layer in original_group.layers):
+                            # If layer doesn't exist, add it to original group
+                            original_group.layers.append(add_layer)
+                        
+        def copy_files(SourceData, DestinationData):
+            for root, dirs, files in os.walk(SourceData):
+                for file in files:
+                    src_path = os.path.join(root, file)
+                    dest_path = os.path.join(DestinationData, os.path.relpath(src_path, SourceData))
+                    
+                    # Create the directory if it does not exist
+                    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+                    
+                    # Print statements for debugging
+                    #print(f"Copying {src_path} to {dest_path}")
+                    
+                    # Copy the file
+                    shutil.copy2(src_path, dest_path)
+                    
+                    
+        ## Main function ##
+        try:
+            # Copy the files
+            copy_files(SourceData, DestinationData)
+            
+            # Merge the layers.csv files
+            merge_layerscsv(destinationCSV, os.path.join(SourceData, 'layers.csv'))
+        
+        except Exception as e:
+            #print(f"An error occurred: {e}")
+            return 
+        
+        #print("Data merge completed successfully")
+        return
+
+        
+        

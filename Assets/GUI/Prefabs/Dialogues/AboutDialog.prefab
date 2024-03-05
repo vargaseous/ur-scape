@@ -303,13 +303,51 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "     <size=16><b>Development Team</b></size>\n\n<b>Principal Investigator</b>\nStephen
-    Cairns\n\n<b>Design Leader</b>\nDavid Neudecker *\n\n<b>Senior Software Engineer</b>\nMichael
-    Joos *\n\n<b>UI / UX Designer</b>\nSerene Chen *\n\n<b>Software Engineers</b>\nMuhammad
-    Salihin Bin Zaol-Kefli\nJoshua Vargas\n\n\n<b>Partner Engagement Leader</b>\nDevisari
-    Tunas *\n\n<b>Partner Engagement Co-ordinator</b>\nRosita Samsudin *\n\n<b>Data
-    Scientist\r</b>\nRina Wulandari *\n\n<b>Partner Engagement Manager, Indonesia\r</b>\nLaksmi
-    Darmoyono *\n\n\n<size=12>* Team Alum</size>"
+  m_Text: '     <size=16><b>Development Team</b></size>
+
+
+    <b>Principal Investigator</b>
+
+    Stephen
+    Cairns
+
+
+    <b>Design Leader</b>
+
+    David Neudecker *
+
+
+    <b>Senior Software
+    Engineer</b>
+
+    Michael Joos *
+
+
+    <b>UI / UX Designer</b>
+
+    Serene Chen
+    *
+
+
+    <b>Software Engineer</b>
+
+    Muhammad Salihin Bin Zaol-Kefli *
+
+
+
+    <b>ur-scape
+    studio team</b>
+
+    Niraly Mangal
+
+    Joshua Vargas
+
+    Denise Lee
+
+
+
+    <size=12>*
+    Team Alum</size>'
 --- !u!114 &114685573797656854
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,7 +402,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 385, y: 0}
+  m_AnchoredPosition: {x: 355.5, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &114099084421538780
@@ -602,8 +640,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 365, y: 0}
-  m_SizeDelta: {x: 730, y: 0}
+  m_AnchoredPosition: {x: 335.5, y: 0}
+  m_SizeDelta: {x: 671, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &114181223080349930
 MonoBehaviour:
@@ -1146,7 +1184,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 534, y: 0}
+  m_AnchoredPosition: {x: 475, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4506026405921709731
@@ -1518,7 +1556,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: (c) 2023 Singapore-ETH Centre, Future Cities Laboratory. All rights reserved.
+  m_Text: (c) 2024 Singapore-ETH Centre, Future Cities Laboratory. All rights reserved.
 --- !u!1 &7680021141091150813
 GameObject:
   m_ObjectHideFlags: 0

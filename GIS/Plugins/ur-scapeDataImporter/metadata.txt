@@ -4,11 +4,11 @@
 # Mandatory items:
 
 [general]
-name=ur-scape Data Importer
+name=ur-scape Data Importer - Test
 qgisMinimumVersion=3.10
 description=Import data to ur-scape, the open-source planning support tool developed by Future Cities Laboratory.
 about=This plugin allows you to import data to ur-scape, the open-source planning support tool for rapidly urbanising regions developed by Future Cities Laboratory, Singapore-ETH Centre.
-version=0.2
+version=0.2a
 author=Future Cities Laboratory
 email=joshua.vargas@sec.ethz.ch
 #tracker=http://bugs
@@ -31,7 +31,7 @@ tags=ur-scape
 deprecated=False
 
 # A comma separated list of plugins to be installed or upgraded (since QGIS 3.8)
-#plugin_dependencies=
+#plugin_dependencies=geopandas==0.13.2,pandas==1.5.3
 
 # If the plugin can run on QGIS Server.
 server=False
