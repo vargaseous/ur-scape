@@ -80,7 +80,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Development by Urban-Rural Systems (URS) at Future Cities Laboratory (FCL)
+  m_Text: "Development by Urban-Rural Systems (URS) and Agropolitan Territories of Monsoon Asia (AGR) at Future Cities Laboratory (FCL)
     with the support of the Asian Development Bank (ADB) and the Swiss Secretariat
     for Economic Affairs (SECO).\nFCL was established by ETH Z\xFCrich and the National
     Research Foundation (NRF)."
@@ -1070,7 +1070,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: https://urs.sec.sg/
+  m_Text: https://ur-scape.com/
 --- !u!114 &9022771680019828662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1098,7 +1098,7 @@ GameObject:
   - component: {fileID: 4186546417929638984}
   - component: {fileID: 3560646868389570872}
   m_Layer: 5
-  m_Name: Urban-Rural Systems
+  m_Name: ur-scape project
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1165,7 +1165,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Urban-Rural Systems
+  m_Text: ur-scape project
 --- !u!1 &5858512493674479816
 GameObject:
   m_ObjectHideFlags: 0

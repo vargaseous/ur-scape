@@ -255,7 +255,7 @@ public class ContoursTool : Tool
 			deleteToggle.isOn = false;
 			deleteToggle.interactable = false;
 			addButton.interactable = true;
-			cropToggle.isOn = contoursLayer.CropWithViewArea;
+			cropToggle.isOn = false;
 
 			// Initialize listeners
 			addButton.onClick.AddListener(OnAddSnapshotClick);

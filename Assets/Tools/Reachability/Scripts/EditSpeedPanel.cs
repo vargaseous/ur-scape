@@ -74,6 +74,7 @@ public class EditSpeedPanel : MonoBehaviour
             }
         }
         ReachabilityIO.Save(mobilityModes, filename);
+        OnCloseClick();
     }
 
     //

@@ -314,7 +314,7 @@ MonoBehaviour:
 
     <b>Design Leader</b>
 
-    David Neudecker *
+    David Neudecker
 
 
     <b>Senior Software
@@ -334,9 +334,8 @@ MonoBehaviour:
     Muhammad Salihin Bin Zaol-Kefli *
 
 
-
     <b>ur-scape
-    studio team</b>
+    team</b>
 
     Niraly Mangal
 
@@ -344,10 +343,14 @@ MonoBehaviour:
 
     Denise Lee
 
+    Pari Sen
+    Biswas
+
+    Darshan Lineswala
 
 
-    <size=12>*
-    Team Alum</size>'
+
+    <size=12>* Team Alum</size>'
 --- !u!114 &114685573797656854
 MonoBehaviour:
   m_ObjectHideFlags: 0

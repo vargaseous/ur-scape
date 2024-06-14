@@ -42,8 +42,8 @@ PlayerSettings:
   m_SplashScreenLogos: []
   m_VirtualRealitySplashScreen: {fileID: 0}
   m_HolographicTrackingLossScreen: {fileID: 0}
-  defaultScreenWidth: 3840
-  defaultScreenHeight: 1884
+  defaultScreenWidth: 2012
+  defaultScreenHeight: 1433
   defaultScreenWidthWeb: 1920
   defaultScreenHeightWeb: 1080
   m_StereoRenderingPath: 0
@@ -75,7 +75,7 @@ PlayerSettings:
   androidMinimumWindowWidth: 400
   androidMinimumWindowHeight: 300
   androidFullscreenMode: 1
-  defaultIsNativeResolution: 0
+  defaultIsNativeResolution: 1
   macRetinaSupport: 1
   runInBackground: 1
   captureSingleScreen: 0
@@ -133,7 +133,7 @@ PlayerSettings:
   vulkanEnableLateAcquireNextImage: 0
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
-  bundleVersion: 0.9.96
+  bundleVersion: 0.9.97
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -160,11 +160,11 @@ PlayerSettings:
     iPhone: sg.fcl.urs.ur-scape
     tvOS: com.Company.ProductName
   buildNumber:
-    Standalone: 0.9.96
-    iPhone: 0.9.96
+    Standalone: 0.9.97
+    iPhone: 0.9.97
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 9096
+  AndroidBundleVersionCode: 9097
   AndroidMinSdkVersion: 22
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
